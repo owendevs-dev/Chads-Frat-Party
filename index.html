@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chad's Frat Party</title>
+<style>
+:root{
+  --bg:#0c0d10;
+  --panel:#17191f;
+  --panel2:#20232b;
+  --text:#f5f5f5;
+  --muted:#b9bec9;
+  --orange:#ff8200;
+  --gold:#b3995d;
+  --purple:#7356a8;
+  --border:#343946;
+  --good:#6fd08c;
+  --warn:#f3c969;
+  --bad:#f07878;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(255,130,0,.12), transparent 28%),
+    radial-gradient(circle at 90% 10%, rgba(179,153,93,.10), transparent 24%),
+    var(--bg);
+  min-height:100vh;
+}
+header{
+  padding:20px clamp(14px,2.3vw,32px) 10px;
+  display:grid;
+  grid-template-columns:minmax(280px,1fr) minmax(320px,520px);
+  gap:18px;
+  align-items:end;
+}
+h1{margin:0;font-size:clamp(28px,4vw,48px);letter-spacing:-1.5px}
+.subtitle{color:var(--muted);margin-top:4px}
+.header-idea{
+  justify-self:end;
+  width:100%;
+  max-width:520px;
+  text-align:right;
+}
+.header-idea-title{
+  color:var(--orange);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  margin-bottom:7px;
+}
+.header-idea-text{
+  font-size:16px;
+  font-weight:750;
+  line-height:1.35;
+  margin-bottom:6px;
+}
+.header-idea-meta{
+  color:var(--gold);
+  font-size:13px;
+  line-height:1.35;
+}
+.header-idea-note{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+  margin-top:4px;
+}
+main{
+  display:grid;
+  grid-template-columns:minmax(250px,.85fr) minmax(380px,1.35fr) minmax(290px,1fr);
+  grid-template-rows:auto auto;
+  grid-template-areas:
+    "weather chat todo"
+    "events scripts todo";
+  align-items:stretch;
+  gap:12px;
+  padding:12px clamp(14px,2.3vw,32px) 24px;
+}
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.025), transparent), var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px;
+  box-shadow:0 16px 40px rgba(0,0,0,.22);
+  min-width:0;
+}
+.weather{grid-area:weather}
+.chat{grid-area:chat;display:flex;flex-direction:column;min-height:clamp(300px,42vh,430px)}
+.events{grid-area:events}
+.scripts{grid-area:scripts}
+.todo{grid-area:todo;display:flex;flex-direction:column;align-self:stretch}
+@media(max-width:1050px){
+  main{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:auto;
+    grid-template-areas:
+      "weather todo"
+      "chat todo"
+      "events scripts";
+  }
+  .chat{min-height:clamp(280px,38vh,380px)}
+}
+@media(max-width:840px){
+  main{grid-template-columns:1fr;grid-template-areas:"weather" "chat" "todo" "events" "scripts";padding:10px 14px 20px}
+  header{grid-template-columns:1fr;padding:18px 14px 8px}
+  .header-idea{text-align:left;justify-self:start}
+  .chat,.todo{min-height:auto}
+}
+.card h2{margin:0 0 12px;font-size:18px}
+.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:var(--orange);font-weight:700}
+.weather-main{display:grid;gap:8px}
+.temp{font-size:clamp(44px,4.8vw,58px);font-weight:800;line-height:1}
+.weather-text{font-size:18px}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.metric{background:var(--panel2);border-radius:8px;padding:10px}
+.metric small{display:block;color:var(--muted);margin-bottom:5px}
+.metric strong{font-size:17px}
+@media(max-width:520px){.metrics{grid-template-columns:1fr}}
+.alert{
+  margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--panel2);
+  border-left:4px solid var(--gold);line-height:1.45
+}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button,input{
+  background:#111318;color:var(--text);border:1px solid var(--border);
+  border-radius:8px;padding:9px 11px;font:inherit
+}
+button{cursor:pointer}
+button:hover{border-color:var(--orange)}
+input{min-width:220px}
+.idea-title{font-size:20px;font-weight:800;margin:8px 0 8px}
+.idea-body{color:#e5e7eb;line-height:1.55}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.tag{font-size:12px;background:#242833;color:#d8dce6;border:1px solid #343946;border-radius:999px;padding:5px 8px}
+.quote-text{font-size:20px;line-height:1.35;font-weight:700;margin:10px 0 12px}
+.quote-source{color:var(--muted)}
+.footer-note{font-size:12px;color:#848b99;margin-top:10px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--good);margin-right:6px}
+
+.panel-clock{
+  margin:0 0 16px;
+  padding:11px 12px;
+  border:1px solid rgba(179,153,93,.45);
+  border-radius:8px;
+  color:var(--gold);
+  background:rgba(179,153,93,.07);
+  font-size:13px;
+  line-height:1.35;
+}
+.chat-log{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow:auto;
+  min-height:170px;
+  padding:2px 2px 12px;
+}
+.chat-message{
+  max-width:86%;
+  padding:10px 12px;
+  border-radius:8px;
+  line-height:1.42;
+  background:var(--panel2);
+  color:#e7e9ef;
+}
+.chat-message.user{align-self:flex-end;background:rgba(255,130,0,.14);border:1px solid rgba(255,130,0,.25)}
+.chat-message.chad{align-self:flex-start;border:1px solid var(--border)}
+.chat-entry{display:flex;gap:8px;margin-top:auto}
+.chat-entry input{flex:1;min-width:0}
+.send-btn{min-width:44px;padding:10px 13px;font-size:18px;line-height:1}
+
+.todo-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
+.todo-tab{padding:9px 13px;border-radius:999px;border:1px solid var(--border);background:#111318;color:var(--muted);cursor:pointer}
+.todo-tab.active{border-color:var(--orange);color:var(--text);background:rgba(255,130,0,.10)}
+.todo-entry{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.todo-entry input{flex:1;min-width:0}
+.todo-list{display:flex;flex-direction:column;gap:9px;overflow:auto;padding-right:2px}
+.todo-item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;background:var(--panel2);padding:11px 12px;border-radius:12px}
+.todo-item.done .todo-text{text-decoration:line-through;color:var(--muted)}
+.todo-text{flex:1;line-height:1.35}
+.todo-content{min-width:0}
+.todo-meta{display:inline-flex;align-items:center;margin-top:6px;font-size:11px;color:var(--gold);border:1px solid rgba(179,153,93,.35);background:rgba(179,153,93,.08);border-radius:999px;padding:3px 7px}
+.icon-btn{padding:7px 9px;min-width:36px}
+.feedback-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.feedback-row button.selected{border-color:var(--gold);background:rgba(179,153,93,.12)}
+.feedback-note{margin-top:8px;color:var(--muted);font-size:12px}
+
+.data-actions{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.data-actions h3{font-size:14px;margin:0 0 8px;color:var(--gold)}
+.data-actions .controls{margin-top:6px}
+.data-actions button{font-size:12px;padding:7px 9px}
+.data-status{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="kicker">Desktop Command Center</div>
+    <h1>Chad's Frat Party</h1>
+    <div class="subtitle">Weather intelligence, questionable decisions, fresh RP concepts, and tiny dev projects.</div>
+  </div>
+  <aside class="header-idea" aria-label="Chad's Bad Idea of the Day">
+    <div class="header-idea-title">Chad's Bad Idea of the Day</div>
+    <div class="header-idea-text" id="badIdeaText"></div>
+    <div class="header-idea-meta" id="clock">Loading...</div>
+    <div class="header-idea-note" id="badIdeaNote"></div>
+  </aside>
+</header>
+
+<div class="cloud-banner" style="margin:12px clamp(14px,2.3vw,32px);background:var(--panel);padding:14px;border:1px solid var(--border);border-radius:8px">
+ <strong>Private Cloud Sync</strong> <button id="cloudLogin" type="button" hidden>Sign in with Google</button><button id="cloudLogout" type="button" hidden>Sign out</button>
+ <span id="cloudStatus" role="status" style="color:var(--muted);margin-left:8px">Checking cloud configuration…</span>
+</div>
+<main>
+<section class="card weather">
+  <div class="kicker">Touch Grass?</div>
+  <h2>How bout Nah...</h2>
+  <div id="weatherContent">
+    <div class="weather-main">
+      <div class="temp" id="temp">--°</div>
+      <div>
+        <div class="weather-text" id="condition">Getting your weather...</div>
+        <div class="quote-source" id="locationLabel">Location pending</div>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><small>Today's High</small><strong id="high">--°</strong></div>
+      <div class="metric"><small>Today's Low</small><strong id="low">--°</strong></div>
+      <div class="metric"><small>Pressure</small><strong id="pressure">-- hPa</strong></div>
+      <div class="metric"><small>24h Pressure Shift</small><strong id="pressureShift">--</strong></div>
+    </div>
+    <div class="alert" id="atmoWatch">Checking pressure and incoming conditions...</div>
+    <div class="controls">
+      <button onclick="useMyLocation()">Use My Location</button>
+      <input id="cityInput" placeholder="Or enter city, state" />
+      <button onclick="searchCity()">Load City</button>
+      <button onclick="refreshWeather()">Refresh</button>
+    </div>
+    <div class="footer-note">Atmosphere Watch is informational only. Pressure/weather changes can correlate with symptoms for some people, but it is not a medical prediction.</div>
+  </div>
+</section>
+
+<section class="card chat">
+  <div class="kicker">Coffee with Chad</div>
+  <h2>I'll Take a Coldbrew</h2>
+  <div class="chat-log" id="chatLog"></div>
+  <div class="chat-entry">
+    <input id="chatInput" placeholder="Type message..." onkeydown="if(event.key==='Enter')sendChat()" />
+    <button class="send-btn" onclick="sendChat()" aria-label="Send message">➤</button>
+  </div>
+</section>
+
+<section class="card events">
+  <div class="kicker">Raw Dawg Decisions... in the making</div>
+  <h2>OTRP Event Ideas</h2>
+  <div class="idea-title" id="eventTitle"></div>
+  <div class="idea-body" id="eventBody"></div>
+  <div class="tags" id="eventTags"></div>
+  <div class="feedback-row">
+    <button id="eventLike" onclick="rateEvent('liked')">👍 Like</button>
+    <button id="eventDislike" onclick="rateEvent('disliked')">👎 Not For Us</button>
+    <button id="eventUsed" onclick="rateEvent('used')">We Used This</button>
+    <button onclick="newEvent()">Generate Event</button>
+  </div>
+  <div class="feedback-note" id="eventFeedbackNote">Your feedback is saved on this device and used to shape future suggestions.</div>
+</section>
+
+<section class="card scripts">
+  <div class="kicker">Owen Tries to Dev</div>
+  <h2>I wonder if I can create this...</h2>
+  <div class="idea-title" id="scriptTitle"></div>
+  <div class="idea-body" id="scriptBody"></div>
+  <div class="tags" id="scriptTags"></div>
+  <div class="controls"><button onclick="newScript()">Give Me a Project</button></div>
+</section>
+
+<section class="card todo">
+  <div class="kicker">Keeping ADHD at Bay</div>
+  <h2>Takes Note of This</h2>
+  <div class="todo-tabs">
+    <button class="todo-tab active" data-list="personal" onclick="setTodoTab('personal')">Personal</button>
+    <button class="todo-tab" data-list="reapers" onclick="setTodoTab('reapers')">Reapers MC</button>
+    <button class="todo-tab" data-list="otrp" onclick="setTodoTab('otrp')">OTRP Staff</button>
+  </div>
+  <div class="todo-entry">
+    <input id="todoInput" placeholder="Add something to this list..." onkeydown="if(event.key==='Enter')addTodo()" />
+    <button onclick="addTodo()">Add Task</button>
+    <button onclick="clearCompleted()">Clear Completed</button>
+  </div>
+  <div class="todo-list" id="todoList"></div>
+  <div class="footer-note">Tasks sync automatically when signed in. Export Backup is available for additional protection. Changes made while signed out stay on this browser.</div>
+  <div class="data-actions">
+    <h3>Dashboard Data</h3>
+    <div class="controls">
+      <button type="button" onclick="exportDashboardData()">Export Backup</button>
+      <button type="button" onclick="document.getElementById('backupFile').click()">Import Backup</button>
+      <button type="button" onclick="resetDashboardData()">Reset Saved Data</button>
+    </div>
+    <input type="file" id="backupFile" accept="application/json,.json" style="display:none" onchange="importDashboardData(event)" aria-label="Choose dashboard backup" />
+    <div class="data-status" id="dataStatus">Use Export Backup before clearing browser data or switching devices.</div>
+  </div>
+</section>
+</main>
+
+<script>
+// Data is cached locally and synced to Firestore while signed in.
+const DASHBOARD_KEYS = ['cfpTodos', 'cfpChat', 'cfpEventFeedback', 'cfpShownEvents', 'cfpLocation'];
+function saveCloudKey(key,value){
+  localStorage.setItem(key,value);
+  if(typeof window.queueCloudSync === 'function') window.queueCloudSync(key);
+}
+function refreshDashboardFromCloud(){
+  renderTodos();renderChat();updateFeedbackButtons();
+  const saved=localStorage.getItem('cfpLocation');
+  if(saved){try{const p=JSON.parse(saved);if(!lastCoords||p.lat!==lastCoords.lat||p.lon!==lastCoords.lon)loadWeather(p.lat,p.lon,p.label)}catch(e){}}
+}
+function exportDashboardData(){
+  const data = {app:'chads-frat-party',version:1,exportedAt:new Date().toISOString(),storage:{}};
+  DASHBOARD_KEYS.forEach(k=>{const value=localStorage.getItem(k);if(value!==null)data.storage[k]=value;});
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;link.download='chads-frat-party-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  document.getElementById('dataStatus').textContent='Backup exported. Keep this file somewhere safe.';
+}
+async function importDashboardData(event){
+  const file=event.target.files?.[0];if(!file)return;
+  try{
+    const data=JSON.parse(await file.text());
+    if(data.app!=='chads-frat-party'||data.version!==1||!data.storage||typeof data.storage!=='object'||Array.isArray(data.storage))throw Error('Not a supported dashboard backup.');
+    for(const [key,value] of Object.entries(data.storage)){
+      if(!DASHBOARD_KEYS.includes(key)||typeof value!=='string')throw Error('Backup has invalid data.');
+      JSON.parse(value);
+    }
+    if(!confirm('Importing this backup will replace your saved dashboard data. If signed in, it will also replace cloud data on your other devices. Continue?'))return;
+    DASHBOARD_KEYS.forEach(k=>localStorage.removeItem(k));
+    Object.entries(data.storage).forEach(([k,v])=>localStorage.setItem(k,v));
+    if(window.cloudReplaceAll) await window.cloudReplaceAll();
+    location.reload();
+  }catch(e){document.getElementById('dataStatus').textContent='Import failed: '+e.message;}
+  finally{event.target.value='';}
+}
+async function resetDashboardData(){
+  if(!confirm('Permanently clear dashboard tasks, chat history, event feedback, and weather location? If signed in, this will also clear your synced cloud data on all devices. Export a backup first if needed.'))return;
+  DASHBOARD_KEYS.forEach(k=>localStorage.removeItem(k));
+  if(window.cloudReplaceAll) await window.cloudReplaceAll();
+  location.reload();
+}
+
+const badIdeas = [
+  ["Replace every useful desktop notification sound with an airhorn for one day.", "Productivity impact: scientifically questionable."],
+  ["Make a FiveM loading screen that gets increasingly disappointed if someone takes too long to connect.", "Harmless. Petty. Technically educational."],
+  ["Build a staff event where every clue is technically correct but written by someone with terrible directions.", "The GPS says left. Chad says 'near the thing.'"],
+  ["Rename your test server resources like college classes: lua_101, questionable_decisions_204, and why_is_this_broken_499.", "Future-you will absolutely regret this."],
+  ["Give every test NPC the same first name and act like this is normal lore.", "Welcome to the Chad Cinematic Universe."],
+  ["Create a mechanic diagnostic tool that occasionally labels a perfectly healthy car as 'emotionally unavailable.'", "No actual vehicle damage required."],
+  ["Host an RP event where the grand prize is introduced like a supercar and turns out to be a suspiciously nice bicycle.", "The reveal is the event."],
+  ["Add a server command that rates parking jobs from 'acceptable' to 'you have brought shame upon your bloodline.'", "Staff-only is probably the responsible choice."],
+  ["Make a fake in-game HOA that issues citations for ugly lawn furniture and aggressively mismatched vehicles.", "Peak low-stakes bureaucracy RP."],
+  ["Build a weather siren that only activates when the forecast is perfect, because complacency is dangerous.", "Do not connect this to a real siren."],
+  ["Create an NPC named Chad who gives one confidently incorrect piece of life advice every restart.", "Never financial, medical, or legal advice. Chad has limits."],
+  ["Design an event trophy that is intentionally way too large and make winners physically carry it during the victory lap.", "Prestige through inconvenience."],
+  ["Make a development command called /fixit that just opens a checklist saying 'Did you restart the resource?'", "Disturbingly effective troubleshooting."],
+  ["Run a formal black-tie RP gala where every staff host quietly has a completely different understanding of the dress code.", "Elegant chaos, not actual chaos."],
+  ["Add a tiny chance for a test-server vending machine to return a receipt reading 'Chad approved this purchase.'", "Entirely unnecessary. Therefore important."]
+];
+
+const pastEventTerritory = [
+  "hidden box truck scavenger hunt",
+  "parachute relay race",
+  "rc car race",
+  "san andreas triathlon",
+  "go kart racing",
+  "memorial moment of silence emergency services escort",
+  "multi vehicle wacky race",
+  "budget car competition",
+  "smuggler scavenger hunt",
+  "convoy identification escort"
+];
+
+const events = [
+  {
+    title:"San Andreas Game Show Night",
+    body:"Turn a theater, studio, courthouse chamber, or custom set into a live game show. Contestants rotate through trivia, rapid-fire RP prompts, 'guess the sound,' price-estimation rounds, and absurd staff-created challenges. Audience members can win side prizes by voting or answering bonus questions.",
+    tags:["Game Show","Audience Participation","Indoor","Low Vehicle Use"]
+  },
+  {
+    title:"Civilians vs. Bureaucracy",
+    body:"Staff operate a deliberately overcomplicated temporary government office. Players must obtain three ridiculous fictional permits by visiting different desks, completing harmless RP tasks, finding the right forms, and negotiating with eccentric clerks. First person or team to become fully 'licensed' wins.",
+    tags:["Comedy RP","Social","No Racing","Staff Characters"]
+  },
+  {
+    title:"San Andreas Film Festival",
+    body:"Teams receive a random genre, location, required prop, and one mandatory line. They get a short production window to create an in-character scene or mini movie, then everyone meets for screenings and awards such as Best Acting, Best Chaos, Best Plot Twist, and Audience Favorite.",
+    tags:["Creative RP","Teams","Community Voting","Low Setup"]
+  },
+  {
+    title:"The Great Business Takeover",
+    body:"For one evening, participating businesses swap roles. Mechanics run food counters, EMS staff judge vehicle styling, restaurant workers host a dealership pitch, and other groups temporarily operate outside their normal comfort zone under staff supervision. Score the funniest and most committed RP.",
+    tags:["Business RP","Role Swap","Community","Comedy"]
+  },
+  {
+    title:"Courtroom Chaos: The People vs. Something Stupid",
+    body:"Stage a fully fictional comedy trial around a harmless ridiculous charge such as stealing every traffic cone in Los Santos. Assign judge, attorneys, witnesses, bailiff, jury, and surprise evidence. Staff feed witnesses secret motives to keep testimony unpredictable.",
+    tags:["Court RP","Improv","Characters","Spectator Friendly"]
+  },
+  {
+    title:"San Andreas Talent Disaster",
+    body:"Host an in-character talent show where actual talent is optional. Singing, terrible magic, stand-up, synchronized emotes, vehicle horn music, impressions, dramatic readings, or completely invented talents are fair game. Judges score commitment, creativity, and crowd reaction.",
+    tags:["Stage Event","Comedy","Solo or Team","Audience"]
+  },
+  {
+    title:"Neighborhood Block Party Wars",
+    body:"Assign teams different neighborhoods and give each a limited preparation budget. They create a themed block party using props, vehicles, outfits, food, music, and mini activities. Staff tour each location as judges before everyone converges for awards.",
+    tags:["Build & Decorate","Neighborhoods","Teams","Social"]
+  },
+  {
+    title:"The San Andreas Job Fair From Hell",
+    body:"Staff create bizarre temporary employers with ridiculous but RP-safe job interviews. Contestants rotate through interview booths and try to get hired based on improvisation. Jobs might include professional cone consultant, celebrity body double, paranormal tow operator, or luxury dumpster inspector.",
+    tags:["Improv","Job RP","Staff Characters","Comedy"]
+  },
+  {
+    title:"Murder Mystery at the Mansion",
+    body:"Run a non-combat whodunit at a mansion or resort. Each participant receives a character role, relationship, secret, and partial clue. One staff-controlled storyline ties everything together while players mingle, interrogate each other, and submit their final accusation.",
+    tags:["Mystery","Social Deduction","Character RP","No Combat Required"]
+  },
+  {
+    title:"San Andreas Home Makeover",
+    body:"Teams are assigned intentionally ugly or chaotic spaces and a theme. Using approved props and a time limit, they redesign the area while staying in character as contractors, designers, difficult clients, or inspectors. Finish with a dramatic reveal and judging tour.",
+    tags:["Creative","Props","Teams","Interior RP"]
+  },
+  {
+    title:"Radio Station Takeover",
+    body:"Players compete to host short in-character radio segments: fake advertisements, traffic reports, interviews, call-in advice, news bulletins, and music-intro bits. Staff act as callers and inject strange breaking stories. The community votes for the best temporary radio personality.",
+    tags:["Voice RP","Broadcast","Comedy","Minimal Vehicles"]
+  },
+  {
+    title:"The Amazing Pawn Shop Appraisal",
+    body:"Staff present strange legal props and items with fabricated histories. Contestants act as appraisers and must determine which story is true, estimate value, or convincingly sell a completely wrong explanation. Mix trivia with improv rather than speed-based competition.",
+    tags:["Trivia","Improv","Items","Indoor"]
+  },
+  {
+    title:"Disaster Wedding RP",
+    body:"Plan a beautiful in-character wedding where staff secretly control a sequence of harmless complications: missing cake, wrong flowers, confused photographer, late officiant, duplicate best men, and an unexpected celebrity guest. Players earn awards for keeping the ceremony alive through the nonsense.",
+    tags:["Story Event","Social","Staff Controlled","Comedy"]
+  },
+  {
+    title:"San Andreas Restaurant Impossible",
+    body:"Teams are given the same temporary pop-up restaurant space, a theme, and a small menu constraint. They must name it, decorate it, pitch it, and serve staff judges playing increasingly difficult customers. Score service RP, branding, creativity, and recovery from surprise scenarios.",
+    tags:["Business","Food RP","Teams","Creative"]
+  },
+  {
+    title:"Museum of Questionable San Andreas History",
+    body:"Teams create museum exhibits explaining completely fictional pieces of server history. Give each group a random object and location they must turn into a convincing historical artifact. Finish with guided tours where judges challenge every ridiculous claim.",
+    tags:["Lore","Improv","Creative","Community"]
+  }
+];
+
+const scripts = [
+  {
+    title:"Dynamic Postal Bookmark",
+    body:"Create a small /bookmarkpostal command that saves a postal with a custom label, then shows the saved locations in a lightweight NUI panel. Add waypoint and delete buttons. Good practice for client events, NUI callbacks, and simple persistence.",
+    tags:["Lua","NUI","JSON","Beginner+"]
+  },
+  {
+    title:"Vehicle 'Personality' System",
+    body:"Assign vehicles tiny randomized quirks when spawned: slightly sticky starter, occasional horn chirp, named temperament, or dashboard message. Keep effects harmless and configurable. Practice entity state and metadata.",
+    tags:["Lua","Entity State","Config"]
+  },
+  {
+    title:"Staff Event Checkpoint Builder",
+    body:"Build an admin-only command that lets staff stand somewhere, press a key to save coordinates, choose checkpoint type, and export the route as a Lua table or JSON file for future races.",
+    tags:["Admin Tool","Coordinates","Export","Useful"]
+  },
+  {
+    title:"Mechanic Inspection Clipboard",
+    body:"Create a simple inspection interaction that reports engine, body, fuel, tire state, and plate into a clean clipboard-style NUI. Add a copy-to-clipboard formatted report for mechanic RP.",
+    tags:["Mechanic","NUI","Vehicle Natives"]
+  },
+  {
+    title:"Random Civilian Problem Generator",
+    body:"A staff command spawns a harmless RP prompt from a configurable pool: stalled car, lost tourist, broken vending machine, confused delivery driver, suspicious noise. It provides staff with a location and scenario brief.",
+    tags:["Staff Tool","RP Generator","Config"]
+  },
+  {
+    title:"Local Race Heat Manager",
+    body:"Track participants, heat number, finish order, and best times for small staff-hosted races. Include /heatstart, /finish, and a minimal scoreboard. No full racing framework required.",
+    tags:["Events","Commands","State","Scoreboard"]
+  },
+  {
+    title:"Kutte / Uniform Quick-Swap",
+    body:"Create job or gang-based clothing presets that can be toggled from a small menu while preserving the player's previous outfit for restoration. Useful practice for appearance resources and state handling.",
+    tags:["Clothing","Menu","State"]
+  },
+  {
+    title:"Portable Scene Props Kit",
+    body:"Give authorized staff a radial/list menu for cones, barriers, folding tables, lights, tents, and signs. Include placement preview, rotation, ownership tracking, and one-click cleanup of your own props.",
+    tags:["Props","Raycast","Staff QoL","Intermediate"]
+  }
+];
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function newBadIdea(){ const q=pick(badIdeas); badIdeaText.textContent=q[0]; badIdeaNote.textContent=q[1]; }
+function renderIdea(item, type){
+  document.getElementById(type+"Title").textContent=item.title;
+  document.getElementById(type+"Body").textContent=item.body;
+  const tags=document.getElementById(type+"Tags"); tags.innerHTML="";
+  item.tags.forEach(t=>{let s=document.createElement("span");s.className="tag";s.textContent=t;tags.appendChild(s)})
+}
+function newEvent(){
+  let shown=[];
+  try{ shown=JSON.parse(localStorage.getItem("cfpShownEvents")||"[]"); }catch(e){}
+  const feedback=getEventFeedback();
+  let available=events.filter(e=>!shown.includes(e.title) && !["used","disliked"].includes(feedback[e.title]));
+  if(!available.length){
+    shown=[];
+    available=events.filter(e=>!["used","disliked"].includes(feedback[e.title]));
+  }
+  if(!available.length){
+    eventTitle.textContent="Chad needs more event ideas";
+    eventBody.textContent="Every current idea has either been used or rejected. Add more ideas to the dashboard pool before generating again.";
+    eventTags.innerHTML=""; currentEvent=null; updateFeedbackButtons(); return;
+  }
+  const likedTags={};
+  events.forEach(e=>{if(feedback[e.title]==="liked")e.tags.forEach(t=>likedTags[t]=(likedTags[t]||0)+1)});
+  const weighted=[];
+  available.forEach(e=>{let weight=1+e.tags.reduce((n,t)=>n+(likedTags[t]||0),0); for(let i=0;i<weight;i++)weighted.push(e)});
+  const item=pick(weighted); currentEvent=item; renderIdea(item,"event");
+  shown.push(item.title); saveCloudKey("cfpShownEvents",JSON.stringify(shown.slice(-events.length)));
+  const note=document.getElementById("eventFeedbackNote"); if(note)note.textContent="Your feedback is saved on this device and used to shape future suggestions.";
+  updateFeedbackButtons();
+}
+function newScript(){renderIdea(pick(scripts),"script")}
+
+const chadReplies = [
+  "Absolutely. Is it a good idea? Different question.",
+  "I have reviewed the vibes and the vibes say: proceed with mild supervision.",
+  "Put that on the list before it escapes.",
+  "That sounds like a staff meeting pretending to be an RP event.",
+  "We can make it worse, better, or somehow both.",
+  "Respectfully, this has Chad energy.",
+  "Add one prize, one twist, and one person dramatically overexplaining the rules.",
+  "I support this, but I want it known that I am not the legal department."
+];
+function getChatMessages(){
+  try{return JSON.parse(localStorage.getItem("cfpChat")||"[]")}catch(e){return []}
+}
+function saveChatMessages(messages){
+  saveCloudKey("cfpChat",JSON.stringify(messages.slice(-40)));
+}
+function renderChat(){
+  const log=document.getElementById("chatLog"); if(!log)return;
+  let messages=getChatMessages();
+  if(!messages.length){
+    messages=[{from:"chad",text:"What are we plotting today?"}];
+    saveChatMessages(messages);
+  }
+  log.innerHTML="";
+  messages.forEach(m=>{
+    const bubble=document.createElement("div");
+    bubble.className="chat-message "+(m.from==="user"?"user":"chad");
+    bubble.textContent=m.text;
+    log.appendChild(bubble);
+  });
+  log.scrollTop=log.scrollHeight;
+}
+function sendChat(){
+  const input=document.getElementById("chatInput"); const text=input.value.trim(); if(!text)return;
+  const messages=getChatMessages();
+  messages.push({from:"user",text});
+  messages.push({from:"chad",text:pick(chadReplies)});
+  saveChatMessages(messages);
+  input.value="";
+  renderChat();
+}
+
+
+let currentEvent=null;
+function getEventFeedback(){
+  try{return JSON.parse(localStorage.getItem("cfpEventFeedback")||"{}")}catch(e){return {}}
+}
+function saveEventFeedback(data){saveCloudKey("cfpEventFeedback",JSON.stringify(data))}
+function updateFeedbackButtons(){
+  const fb=getEventFeedback(); const status=currentEvent ? fb[currentEvent.title] : null;
+  ["eventLike","eventDislike","eventUsed"].forEach(id=>document.getElementById(id)?.classList.remove("selected"));
+  if(status==="liked") document.getElementById("eventLike")?.classList.add("selected");
+  if(status==="disliked") document.getElementById("eventDislike")?.classList.add("selected");
+  if(status==="used") document.getElementById("eventUsed")?.classList.add("selected");
+}
+function rateEvent(status){
+  if(!currentEvent) return;
+  const fb=getEventFeedback();
+  fb[currentEvent.title]=status; saveEventFeedback(fb); updateFeedbackButtons();
+  const note=document.getElementById("eventFeedbackNote");
+  if(note) note.textContent=status==="liked"?"Saved as a favorite. Similar event styles will be favored when possible.":status==="disliked"?"Got it — this idea will be skipped in future rotations.":"Marked as used — this event will not be suggested again.";
+}
+
+let currentTodoTab="personal";
+const todoLabels={personal:"Personal",reapers:"Reapers MC",otrp:"OTRP Staff"};
+function getTodos(){
+  try{return JSON.parse(localStorage.getItem("cfpTodos")||'{"personal":[],"reapers":[],"otrp":[]}')}catch(e){return {personal:[],reapers:[],otrp:[]}}
+}
+function saveTodos(t){saveCloudKey("cfpTodos",JSON.stringify(t))}
+function setTodoTab(tab){
+  currentTodoTab=tab;
+  document.querySelectorAll(".todo-tab").forEach(b=>b.classList.toggle("active",b.dataset.list===tab));
+  renderTodos();
+}
+function addTodo(){
+  const input=document.getElementById("todoInput"); const text=input.value.trim(); if(!text)return;
+  const todos=getTodos(); todos[currentTodoTab]=todos[currentTodoTab]||[];
+  todos[currentTodoTab].unshift({id:Date.now(),text,done:false,created:new Date().toISOString()});
+  saveTodos(todos); input.value=""; renderTodos();
+}
+function toggleTodo(listName,id){
+  const todos=getTodos(); const item=(todos[listName]||[]).find(x=>x.id===id); if(item)item.done=!item.done; saveTodos(todos); renderTodos();
+}
+function deleteTodo(listName,id){
+  const todos=getTodos(); todos[listName]=(todos[listName]||[]).filter(x=>x.id!==id); saveTodos(todos); renderTodos();
+}
+function clearCompleted(){
+  const todos=getTodos();
+  Object.keys(todoLabels).forEach(listName=>{todos[listName]=(todos[listName]||[]).filter(x=>!x.done)});
+  saveTodos(todos); renderTodos();
+}
+function renderTodos(){
+  const list=document.getElementById("todoList"); if(!list)return; list.innerHTML="";
+  const todos=getTodos();
+  const items=Object.keys(todoLabels)
+    .flatMap(listName=>(todos[listName]||[]).map(item=>({...item,listName})))
+    .sort((a,b)=>new Date(b.created||0)-new Date(a.created||0));
+  if(!items.length){list.innerHTML='<div class="quote-source">Nothing here yet. Chad is suspiciously caught up.</div>';return}
+  items.forEach(item=>{
+    const row=document.createElement("div"); row.className="todo-item"+(item.done?" done":"");
+    const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=item.done; cb.onchange=()=>toggleTodo(item.listName,item.id); cb.style.minWidth="auto";
+    const content=document.createElement("div"); content.className="todo-content";
+    const text=document.createElement("div"); text.className="todo-text"; text.textContent=item.text;
+    const meta=document.createElement("div"); meta.className="todo-meta"; meta.textContent=todoLabels[item.listName]||item.listName;
+    content.append(text,meta);
+    const del=document.createElement("button"); del.className="icon-btn"; del.textContent="✕"; del.onclick=()=>deleteTodo(item.listName,item.id);
+    row.append(cb,content,del); list.appendChild(row);
+  });
+}
+
+let lastCoords=null;
+const weatherCodes = {
+  0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",45:"Fog",48:"Rime fog",
+  51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",
+  71:"Light snow",73:"Snow",75:"Heavy snow",80:"Rain showers",81:"Rain showers",82:"Heavy showers",
+  95:"Thunderstorms",96:"Thunderstorms / hail",99:"Severe thunderstorms / hail"
+};
+
+async function loadWeather(lat, lon, label){
+  lastCoords={lat,lon,label};
+  saveCloudKey("cfpLocation",JSON.stringify(lastCoords));
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,weather_code,wind_speed_10m&hourly=surface_pressure,temperature_2m,precipitation_probability,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=3`;
+    const r=await fetch(url);
+    const d=await r.json();
+    temp.textContent=Math.round(d.current.temperature_2m)+"°";
+    condition.textContent=weatherCodes[d.current.weather_code] || "Current conditions";
+    locationLabel.textContent=label;
+    high.textContent=Math.round(d.daily.temperature_2m_max[0])+"°";
+    low.textContent=Math.round(d.daily.temperature_2m_min[0])+"°";
+    pressure.textContent=Math.round(d.current.surface_pressure)+" hPa";
+
+    const nowIndex = d.hourly.time.findIndex(t => t >= d.current.time);
+    const pNow = d.current.surface_pressure;
+    const futureIndex = Math.min((nowIndex < 0 ? 0 : nowIndex) + 24, d.hourly.surface_pressure.length-1);
+    const pFuture = d.hourly.surface_pressure[futureIndex];
+    const shift = pFuture - pNow;
+    pressureShift.textContent=(shift>=0?"+":"")+shift.toFixed(1)+" hPa";
+
+    const next24Precip = Math.max(...d.hourly.precipitation_probability.slice(Math.max(0,nowIndex), Math.max(1,nowIndex)+24));
+    const next24Codes = d.hourly.weather_code.slice(Math.max(0,nowIndex), Math.max(1,nowIndex)+24);
+    const storm = next24Codes.some(c=>c>=95);
+    let msg="";
+    if(shift <= -6) msg="⚠️ Notable pressure drop expected over the next 24 hours. A stronger weather transition may be moving in.";
+    else if(shift <= -3) msg="Heads up: pressure is forecast to fall moderately over the next 24 hours. Conditions may feel noticeably different.";
+    else if(shift >= 6) msg="Pressure is climbing strongly over the next 24 hours, suggesting a meaningful atmospheric shift.";
+    else msg="Pressure looks relatively stable over the next 24 hours.";
+    if(storm) msg += " Thunderstorms also appear possible.";
+    else if(next24Precip >= 60) msg += ` Rain chances reach about ${Math.round(next24Precip)}%.`;
+    atmoWatch.textContent=msg;
+  } catch(e) {
+    condition.textContent="Weather could not load.";
+    atmoWatch.textContent="Check your internet connection, then hit Refresh.";
+  }
+}
+function useMyLocation(){
+  if(!navigator.geolocation){locationLabel.textContent="Geolocation unavailable";return}
+  locationLabel.textContent="Requesting location...";
+  navigator.geolocation.getCurrentPosition(
+    p=>loadWeather(p.coords.latitude,p.coords.longitude,"Current location"),
+    ()=>{locationLabel.textContent="Location permission denied — enter a city below."}
+  );
+}
+async function searchCity(){
+  const q=cityInput.value.trim(); if(!q)return;
+  locationLabel.textContent="Finding "+q+"...";
+  try{
+    const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=en&format=json`);
+    const d=await r.json();
+    if(!d.results?.length){locationLabel.textContent="City not found.";return}
+    const c=d.results[0];
+    loadWeather(c.latitude,c.longitude,[c.name,c.admin1,c.country].filter(Boolean).join(", "));
+  }catch(e){locationLabel.textContent="Could not search city."}
+}
+function refreshWeather(){ if(lastCoords) loadWeather(lastCoords.lat,lastCoords.lon,lastCoords.label); else useMyLocation(); }
+
+function tick(){
+  const d=new Date();
+  clock.textContent=d.toLocaleString([], {weekday:"long",month:"long",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit",second:"2-digit"});
+}
+setInterval(tick,1000);tick();
+newBadIdea();newEvent();newScript();renderTodos();renderChat();
+
+const saved=localStorage.getItem("cfpLocation");
+if(saved){try{const s=JSON.parse(saved);loadWeather(s.lat,s.lon,s.label)}catch(e){useMyLocation()}} else {useMyLocation()}
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+import { getFirestore, doc, onSnapshot, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+import { firebaseConfig, OWNER_UID } from './firebase-config.js';
+const status=document.getElementById('cloudStatus');
+const login=document.getElementById('cloudLogin');
+const logout=document.getElementById('cloudLogout');
+const keys=['cfpTodos','cfpChat','cfpEventFeedback','cfpShownEvents','cfpLocation'];
+let activeUser=null,db=null,unsubs=[],ready=new Set(),pending=new Set(),timers={};
+const show=(message)=>{status.textContent=message};
+if(!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('REPLACE')){
+  show('Setup needed: edit firebase-config.js with Firebase web app settings.');
+}else{
+  try{
+    const app=initializeApp(firebaseConfig),auth=getAuth(app);
+    db=getFirestore(app);
+    login.hidden=false;
+    login.onclick=async()=>{try{await signInWithPopup(auth,new GoogleAuthProvider())}catch(e){show('Sign-in error: '+e.message)}};
+    logout.onclick=()=>signOut(auth);
+    function disconnect(){unsubs.forEach(fn=>fn());unsubs=[];ready.clear();pending.clear();Object.values(timers).forEach(clearTimeout);timers={};window.queueCloudSync=undefined;window.cloudReplaceAll=undefined;}
+    async function write(key){
+      if(!activeUser||!ready.has(key))return;
+      const raw=localStorage.getItem(key);
+      try{
+        // One document per section reduces cross-section write conflicts.
+        if(raw===null) await deleteDoc(doc(db,'users',activeUser.uid,'dashboard',key));
+        else await setDoc(doc(db,'users',activeUser.uid,'dashboard',key),{value:raw});
+        show('Cloud sync active — '+(activeUser.displayName||activeUser.email));
+      }catch(e){show('Sync failed: '+e.message)}
+    }
+    window.queueCloudSync=undefined;
+    onAuthStateChanged(auth,user=>{
+      disconnect();activeUser=null;
+      if(!user){login.hidden=false;logout.hidden=true;show('Signed out — changes stay on this browser.');return;}
+      if(user.uid!==OWNER_UID){login.hidden=true;logout.hidden=false;show('Google login succeeded. Your Firebase User UID: '+user.uid+' — put this UID in firebase-config.js and firestore.rules, then redeploy.');return;}
+      activeUser=user;login.hidden=true;logout.hidden=false;
+      show('Connecting to your private cloud data…');
+      window.queueCloudSync=key=>{
+        if(!keys.includes(key)||!ready.has(key))return;
+        clearTimeout(timers[key]);timers[key]=setTimeout(()=>write(key),250);
+      };
+      window.cloudReplaceAll=async()=>{
+        await Promise.all(keys.map(async key=>{
+          const raw=localStorage.getItem(key),ref=doc(db,'users',user.uid,'dashboard',key);
+          if(raw===null)await deleteDoc(ref); else await setDoc(ref,{value:raw});
+        }));
+      };
+      keys.forEach(key=>{
+        const ref=doc(db,'users',user.uid,'dashboard',key);
+        let initialized=false;
+        unsubs.push(onSnapshot(ref,async snap=>{
+          if(!activeUser || activeUser.uid!==user.uid)return;
+          if(!initialized){
+            initialized=true;
+            // On first sign in, migrate existing browser data ONLY if no cloud record exists.
+            if(!snap.exists()){
+              const raw=localStorage.getItem(key);
+              ready.add(key);
+              if(raw!==null)try{await setDoc(ref,{value:raw})}catch(e){show('Migration failed: '+e.message)}
+              return;
+            }
+          }
+          if(snap.exists()&&typeof snap.data().value==='string'){
+            const next=snap.data().value;
+            if(localStorage.getItem(key)!==next){
+              localStorage.setItem(key,next);
+              window.refreshDashboardFromCloud?.();
+            }
+          }else if(localStorage.getItem(key)!==null){
+            localStorage.removeItem(key);
+            window.refreshDashboardFromCloud?.();
+          }
+          ready.add(key);
+          if(ready.size===keys.length)show('Cloud sync active — '+(user.displayName||user.email));
+        },err=>show('Cloud permission/network error: '+err.message)));
+      });
+    });
+  }catch(e){show('Firebase initialization error: '+e.message)}
+}
+window.refreshDashboardFromCloud=refreshDashboardFromCloud;
+</script>
+</body>
+</html>

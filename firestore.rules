@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/dashboard/{sectionId} {
+      function isOwner() {
+        return request.auth != null
+          && request.auth.uid == userId
+          && request.auth.uid == 'REPLACE_WITH_YOUR_FIREBASE_USER_UID'
+          && sectionId in ['cfpTodos','cfpChat','cfpEventFeedback','cfpShownEvents','cfpLocation'];
+      }
+      allow read, delete: if isOwner();
+      allow create, update: if isOwner()
+        && request.resource.data.keys().hasOnly(['value'])
+        && request.resource.data.value is string
+        && request.resource.data.value.size() < 100000;
+    }
+  }
+}
