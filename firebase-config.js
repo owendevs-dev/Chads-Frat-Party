@@ -10,4 +10,4 @@ export const firebaseConfig = {
   measurementId: "G-MLM78V9VG2"
 };
 // Your Firebase Authentication -> Users -> User UID (not your email address).
-export const OWNER_UID = 'REPLACE_WITH_YOUR_FIREBASE_AUTH_UID';
+export const OWNER_UID = 'M2vGiZkKpMYxjF8akAAnkm7OAK92';
