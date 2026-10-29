@@ -4,6 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Chad's Frat Party</title>
+<meta name="theme-color" content="#0c0d10" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Frat Party" />
+<meta name="description" content="Chad's Frat Party: personal dashboard, to-dos, weather and RP inspiration." />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+<link rel="apple-touch-icon" href="./icons/icon-180.png" />
 <style>
 :root{
   --bg:#0c0d10;
@@ -201,7 +209,7 @@ input{min-width:220px}
 <body>
 <header>
   <div>
-    <div class="kicker">Desktop Command Center</div>
+    <div class="kicker">Personal Command Center</div>
     <h1>Chad's Frat Party</h1>
     <div class="subtitle">Weather intelligence, questionable decisions, fresh RP concepts, and tiny dev projects.</div>
   </div>
@@ -250,6 +258,7 @@ input{min-width:220px}
   <div class="kicker">Coffee with Chad</div>
   <h2>I'll Take a Coldbrew</h2>
   <div class="chat-log" id="chatLog"></div>
+  <div class="footer-note">Chad currently responds with built-in playful replies; this is not a live ChatGPT connection.</div>
   <div class="chat-entry">
     <input id="chatInput" placeholder="Type message..." onkeydown="if(event.key==='Enter')sendChat()" />
     <button class="send-btn" onclick="sendChat()" aria-label="Send message">➤</button>
@@ -727,6 +736,12 @@ const saved=localStorage.getItem("cfpLocation");
 if(saved){try{const s=JSON.parse(saved);loadWeather(s.lat,s.lon,s.label)}catch(e){useMyLocation()}} else {useMyLocation()}
 </script>
 
+<script>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')
+    .catch(err => console.warn('Offline support unavailable:', err)));
+}
+</script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
